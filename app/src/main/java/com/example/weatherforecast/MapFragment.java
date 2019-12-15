@@ -108,7 +108,6 @@ public class MapFragment extends Fragment {
                 if (amapLocation != null) {
                     if (amapLocation.getErrorCode() == 0) {
                         //定位成功回调信息，设置相关消息
-                        Log.d(TAG, "onLocationChanged: "+amapLocation.getLocationType());
                         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = new Date(amapLocation.getTime());
                         df.format(date);//定位时间
