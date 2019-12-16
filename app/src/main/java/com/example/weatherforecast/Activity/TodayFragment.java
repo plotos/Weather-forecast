@@ -1,4 +1,4 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Activity;
 
 
 import android.os.Bundle;
@@ -14,15 +14,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
+import com.example.weatherforecast.Util.MyToast;
+import com.example.weatherforecast.R;
+import com.example.weatherforecast.JSON.WeatherData;
+import com.example.weatherforecast.JSON.Yesterday;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;

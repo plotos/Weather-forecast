@@ -1,4 +1,4 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Activity;
 
 
 import android.graphics.Bitmap;
@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.weatherforecast.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;

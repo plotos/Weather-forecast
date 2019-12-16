@@ -1,13 +1,14 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Util;
 
-import android.util.Log;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.example.weatherforecast.Activity.HistoryFragment;
+import com.example.weatherforecast.Activity.MapFragment;
+import com.example.weatherforecast.Activity.SettingFragment;
+import com.example.weatherforecast.Activity.WeatherFragment;
 
 public class NavigationPagerAdapter extends FragmentPagerAdapter {
 

@@ -1,4 +1,4 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.JSON;
 
 public class Yesterday{
     private String date;

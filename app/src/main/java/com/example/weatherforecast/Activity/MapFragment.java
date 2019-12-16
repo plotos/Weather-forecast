@@ -1,4 +1,4 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Activity;
 
 
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import com.amap.api.maps2d.LocationSource;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.MyLocationStyle;
+import com.example.weatherforecast.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,11 +1,18 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Util;
+
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.weatherforecast.Activity.RecommendFragment;
+import com.example.weatherforecast.Activity.TodayFragment;
+
 public class WeatherPagerAdapter extends FragmentPagerAdapter {
+
+    private static final String TAG = "WeatherPagerAdapter";
 
     //Tab Title 列表
     String [] tabLists={"今日","推荐"};
@@ -17,15 +24,15 @@ public class WeatherPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Fragment fragment;
+        Log.d(TAG, "getItem: "+position);
         switch (position){
-            case 0:
-                fragment=new TodayFragment();
-                return fragment;
             case 1:
                 fragment=new RecommendFragment();
                 return fragment;
+            default:
+                fragment=new TodayFragment();
+                return fragment;
         }
-        return null;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.weatherforecast;
+package com.example.weatherforecast.Activity;
 
 
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.weatherforecast.R;
+import com.example.weatherforecast.Util.WeatherPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 
