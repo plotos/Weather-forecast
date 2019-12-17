@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.weatherforecast.Service.WeatherService;
 import com.example.weatherforecast.Util.NavigationPagerAdapter;
 import com.example.weatherforecast.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -22,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //启动存储历史天气功能
+        Intent intent=new Intent(this, WeatherService.class);
+        startService(intent);
 
 
         //设置底部导航

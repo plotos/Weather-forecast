@@ -1,6 +1,7 @@
 package com.example.weatherforecast.Activity;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -27,12 +28,16 @@ import com.example.weatherforecast.R;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends Fragment {
 
+    //常量声明
+    private static String SP_NAME="com.example.weatherforecast_preferences";
     private static final String TAG = "MapFragment";
 
     //声明locationClient对象
@@ -119,6 +124,14 @@ public class MapFragment extends Fragment {
                         String street = amapLocation.getStreet();//街道信息
 
                         String locationMessage="你所在的位置是"+country+""+province+""+city+""+district+""+street;
+
+                        //将当前城市写入SP文件
+                        SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+                        SharedPreferences.Editor editor=sharedPreferences.edit();
+                        editor.putString("defCity",city);
+                        editor.commit();
+
+                        //当前城市显示
                         tvMap=getActivity().findViewById(R.id.tvMap);
                         tvMap.setText(locationMessage);
 

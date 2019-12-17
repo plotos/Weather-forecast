@@ -4,7 +4,7 @@
         android:title="用户信息">
         <EditTextPreference
             android:key="password"
-            android:title="密码修改"/>
+            android:title="密码修改" />
     </PreferenceCategory>
     <PreferenceCategory>
         <SwitchPreferenceCompat

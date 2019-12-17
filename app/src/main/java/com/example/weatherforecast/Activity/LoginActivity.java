@@ -26,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //自动登录判断
-        SharedPreferences sharedPreferences=LoginActivity.this.getSharedPreferences(SP_NAME,MODE_PRIVATE);
+        final SharedPreferences sharedPreferences=LoginActivity.this.getSharedPreferences(SP_NAME,MODE_PRIVATE);
         if(sharedPreferences.getBoolean("autoLogin",false)){
             Intent intent=new Intent(LoginActivity.this,MainActivity.class);
             startActivity(intent);
@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
                 String defPassword="123456";
                 //用户输入密码
                 String enterPassword=etPassword.getText().toString();
-                //获取sp对象
+                //密码校验
                 SharedPreferences sharedPreferences=LoginActivity.this.getSharedPreferences(SP_NAME,MODE_PRIVATE);
                 if(sharedPreferences.getString("password",defPassword).equals(enterPassword)){
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);

@@ -1,6 +1,7 @@
 package com.example.weatherforecast.Activity;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,7 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
+import com.example.weatherforecast.JSON.Forecast;
 import com.example.weatherforecast.Util.MyToast;
 import com.example.weatherforecast.R;
 import com.example.weatherforecast.JSON.WeatherData;
@@ -25,6 +29,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -32,12 +40,16 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class TodayFragment extends Fragment {
 
+    //常量声明
+    private static String SP_NAME="com.example.weatherforecast_preferences";
     private static final String TAG = "TodayFragment";
 
     //控制连接线程
@@ -45,6 +57,8 @@ public class TodayFragment extends Fragment {
     //修改的Toast
     private MyToast myToast=new MyToast();
 
+    //控件声明
+    private TextView tvCity;
 
 
     public TodayFragment() {
@@ -63,6 +77,12 @@ public class TodayFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //获得当前城市
+        SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+        String defCity=sharedPreferences.getString("defCity","温州");
+        tvCity=getActivity().findViewById(R.id.tvCity);
+        tvCity.setText(defCity);
+
         //启动访问天气网站的线程
         final Thread t=new Thread(MyThread);
         t.start();
@@ -70,10 +90,14 @@ public class TodayFragment extends Fragment {
 
     }
 
+
     private Handler handler =new Handler(){
 
         //控件声明
         private ListView lvToday;
+        private TextView tvTemperature;
+        private TextView tvType;
+        private TextView tvHint;
 
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -83,19 +107,42 @@ public class TodayFragment extends Fragment {
 
 
             try {
+                //天气数据获取
                 Gson gson=new GsonBuilder()
                         .serializeNulls()
                         .create();
 
                 WeatherData weatherData=gson.fromJson(str,new TypeToken<WeatherData>(){}.getType());
 
-                //列表数据获取
-                Yesterday yesterday=weatherData.getData().getYesterday();
-                String[] dataList={yesterday.getDate(),yesterday.getHigh(),yesterday.getLow(),yesterday.getFx(),yesterday.getFl(),yesterday.getType()};
+                List<Forecast> forecastList=weatherData.getData().getForecast();
+                Forecast today=forecastList.get(0);
+                //天气
+                tvType=getActivity().findViewById(R.id.tvType);
+                tvType.setText(today.getType());
+                //气温
+                tvTemperature=getActivity().findViewById(R.id.tvTemperature);
+                tvTemperature.setText(weatherData.getData().getWendu()+"℃");
+                //感冒提示
+                tvHint=getActivity().findViewById(R.id.tvHint);
+                tvHint.setText(weatherData.getData().getGanmao());
+
+                //列表数据
+                String[] elementList={"title","content"};
+                String[] titleList={"日期","高温","低温","风向","风力"};
+                String[] dataList={today.getDate(),today.getHigh(),today.getLow(),today.getFengxiang(),today.getFengli()};
+                List<Map<String,Object>> mapList=new ArrayList<>();
+                for (int i=0;i<titleList.length;i++){
+                    Map<String,Object> map=new HashMap<>();
+                    map.put(elementList[0],titleList[i]);
+                    map.put(elementList[1],dataList[i]);
+                    mapList.add(map);
+                }
                 //列表数据填充
-                ArrayAdapter<String> adapter=new ArrayAdapter<>(getActivity(),R.layout.support_simple_spinner_dropdown_item,dataList);
+                SimpleAdapter simpleAdapter=new SimpleAdapter(getContext(),mapList,R.layout.weather_list,elementList,new int[]{R.id.tvTitle,R.id.tvContent});
+                ArrayAdapter<String> adapter=new ArrayAdapter<>(getContext(),R.layout.support_simple_spinner_dropdown_item,dataList);
+
                 lvToday=getActivity().findViewById(R.id.lvToday);
-                lvToday.setAdapter(adapter);
+                lvToday.setAdapter(simpleAdapter);
 
             } catch (Exception e) {
                 myToast.sendToast(getContext(),"请输入正确的城市信息");
@@ -129,7 +176,11 @@ public class TodayFragment extends Fragment {
         @Override
         public void run() {
             while(!flag){
-                sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city=温州",new okhttp3.Callback(){
+                //获得当前城市
+                SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+                String defCity=sharedPreferences.getString("defCity","温州");
+                Log.d(TAG, "run: "+defCity);
+                sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city="+defCity,new okhttp3.Callback(){
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.d(TAG, "onFailure: "+e.getMessage());
@@ -138,7 +189,6 @@ public class TodayFragment extends Fragment {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         String str=response.body().string();
-                        Log.d(TAG, "onResponse: "+str);
                         Message message=new Message();
                         Bundle bundle=new Bundle();
                         bundle.putString("str",str);
