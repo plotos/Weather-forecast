@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -55,7 +56,7 @@ public class MapFragment extends Fragment {
 
     //其他控件声明
     private TextView tvMap;//显示定位信息
-
+    private Button btnLocate;
 
     public MapFragment() {
         // Required empty public constructor
@@ -83,11 +84,16 @@ public class MapFragment extends Fragment {
 
         //显示定位蓝点
         myLocationStyle=new MyLocationStyle();
-        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW);
-        myLocationStyle.interval(2000);
+        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_SHOW);
         aMap.setMyLocationStyle(myLocationStyle);
         aMap.setMyLocationEnabled(true);
 
+        //当前城市显示
+        SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+        String defcity=sharedPreferences.getString("defCity","杭州");
+        String locationMessage="默认城市："+defcity;
+        tvMap=getActivity().findViewById(R.id.tvMap);
+        tvMap.setText(locationMessage);
 
         locationClient = new AMapLocationClient(getContext());
         //初始化定位参数
@@ -95,8 +101,8 @@ public class MapFragment extends Fragment {
 
         //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //设置定位间隔,单位毫秒,默认为2000ms
-        locationOption.setInterval(2000);
+        //设置单次定位
+        locationOption.setOnceLocation(true);
         //设置返回地址
         locationOption.setNeedAddress(true);
         //设置使用模拟器
@@ -107,6 +113,19 @@ public class MapFragment extends Fragment {
         //启动定位
         locationClient.startLocation();
 
+        //重新定位
+        btnLocate=getActivity().findViewById(R.id.btnLocate);
+        btnLocate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean("isDefCity",true);
+                editor.commit();
+                locationClient.startLocation();
+            }
+        });
+
         //设置定位监听
         locationClient.setLocationListener(new AMapLocationListener() {
             @Override
@@ -114,26 +133,23 @@ public class MapFragment extends Fragment {
                 if (amapLocation != null) {
                     if (amapLocation.getErrorCode() == 0) {
                         //定位成功回调信息，设置相关消息
-                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date date = new Date(amapLocation.getTime());
-                        df.format(date);//定位时间
-                        String country = amapLocation.getCountry();//国家信息
-                        String province = amapLocation.getProvince();//省信息
+                        amapLocation.getAddress();//地址
+                        amapLocation.getCountry();//国家信息
+                        amapLocation.getProvince();//省信息
                         String city = amapLocation.getCity();//城市信息
-                        String district = amapLocation.getDistrict();//城区信息
-                        String street = amapLocation.getStreet();//街道信息
-
-                        String locationMessage="你所在的位置是"+country+""+province+""+city+""+district+""+street;
 
                         //将当前城市写入SP文件
                         SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
-                        SharedPreferences.Editor editor=sharedPreferences.edit();
-                        editor.putString("defCity",city);
-                        editor.commit();
+                        if(sharedPreferences.getBoolean("isDefCity",true)){
+                            Log.d(TAG, "onLocationChanged: "+city);
+                            String locationMessage="默认城市："+city;
+                            tvMap.setText(locationMessage);
+                            SharedPreferences.Editor editor=sharedPreferences.edit();
+                            editor.putString("defCity",city);
+                            editor.putBoolean("isDefCity",false);
+                            editor.commit();
+                        }
 
-                        //当前城市显示
-                        tvMap=getActivity().findViewById(R.id.tvMap);
-                        tvMap.setText(locationMessage);
 
 
                     } else {
@@ -145,6 +161,8 @@ public class MapFragment extends Fragment {
                 }
             }
         });
+
+
     }
 
     @Override

@@ -52,8 +52,6 @@ public class TodayFragment extends Fragment {
     private static String SP_NAME="com.example.weatherforecast_preferences";
     private static final String TAG = "TodayFragment";
 
-    //控制连接线程
-    private boolean flag=false;
     //修改的Toast
     private MyToast myToast=new MyToast();
 
@@ -84,9 +82,8 @@ public class TodayFragment extends Fragment {
         tvCity.setText(defCity);
 
         //启动访问天气网站的线程
-        final Thread t=new Thread(MyThread);
+        final Thread t = new Thread(MyThread);
         t.start();
-
 
     }
 
@@ -129,7 +126,8 @@ public class TodayFragment extends Fragment {
                 //列表数据
                 String[] elementList={"title","content"};
                 String[] titleList={"日期","高温","低温","风向","风力"};
-                String[] dataList={today.getDate(),today.getHigh(),today.getLow(),today.getFengxiang(),today.getFengli()};
+                String fengLi=today.getFengli().split("\\[|]")[2];
+                String[] dataList={today.getDate(),today.getHigh(),today.getLow(),today.getFengxiang(),fengLi};
                 List<Map<String,Object>> mapList=new ArrayList<>();
                 for (int i=0;i<titleList.length;i++){
                     Map<String,Object> map=new HashMap<>();
@@ -139,7 +137,6 @@ public class TodayFragment extends Fragment {
                 }
                 //列表数据填充
                 SimpleAdapter simpleAdapter=new SimpleAdapter(getContext(),mapList,R.layout.weather_list,elementList,new int[]{R.id.tvTitle,R.id.tvContent});
-                ArrayAdapter<String> adapter=new ArrayAdapter<>(getContext(),R.layout.support_simple_spinner_dropdown_item,dataList);
 
                 lvToday=getActivity().findViewById(R.id.lvToday);
                 lvToday.setAdapter(simpleAdapter);
@@ -172,33 +169,28 @@ public class TodayFragment extends Fragment {
 
     //访问天气信息网站线程
     final Runnable MyThread=new Runnable() {
-
         @Override
         public void run() {
-            while(!flag){
-                //获得当前城市
-                SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
-                String defCity=sharedPreferences.getString("defCity","温州");
-                Log.d(TAG, "run: "+defCity);
-                sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city="+defCity,new okhttp3.Callback(){
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Log.d(TAG, "onFailure: "+e.getMessage());
-                    }
+            //获得当前城市
+            SharedPreferences sharedPreferences=getActivity().getSharedPreferences(SP_NAME,MODE_PRIVATE);
+            String defCity=sharedPreferences.getString("defCity","温州");
+            sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city="+defCity,new okhttp3.Callback(){
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.d(TAG, "onFailure: "+e.getMessage());
+                }
 
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        String str=response.body().string();
-                        Message message=new Message();
-                        Bundle bundle=new Bundle();
-                        bundle.putString("str",str);
-                        message.setData(bundle);
-                        handler.sendMessage(message);
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String str=response.body().string();
+                    Message message=new Message();
+                    Bundle bundle=new Bundle();
+                    bundle.putString("str",str);
+                    message.setData(bundle);
+                    handler.sendMessage(message);
 
-                    }
-                });
-                flag=true;
-            }
+                }
+            });
         }
     };
 }

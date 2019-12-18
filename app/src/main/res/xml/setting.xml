@@ -4,7 +4,7 @@
         android:title="用户信息">
         <EditTextPreference
             android:key="password"
-            android:title="密码修改" />
+            android:title="密码修改"/>
     </PreferenceCategory>
     <PreferenceCategory>
         <SwitchPreferenceCompat
@@ -12,6 +12,12 @@
             android:title="是否保存密码"
             android:summaryOff="下次需要输入密码登录"
             android:summaryOn="下次将自动登录"/>
+    </PreferenceCategory>
+    <PreferenceCategory>
+        <EditTextPreference
+            android:key="defCity"
+            android:title="默认城市"
+            android:summary="修改当前城市"/>
     </PreferenceCategory>
     <PreferenceCategory>
         <SeekBarPreference

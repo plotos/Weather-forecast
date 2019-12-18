@@ -22,6 +22,7 @@ import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -49,6 +50,28 @@ public class WeatherService extends Service {
         Log.d(TAG, "onStartCommand: "+new Date().toString());
 
         //启动查询线程
+        sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city=杭州", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String str=response.body().string();
+                Gson gson=new GsonBuilder()
+                        .serializeNulls()
+                        .create();
+
+                WeatherData weatherData=gson.fromJson(str,new TypeToken<WeatherData>(){}.getType());
+                Yesterday yesterday=weatherData.getData().getYesterday();
+                Weather weather=new Weather("杭州市",yesterday.getDate(),yesterday.getHigh(),yesterday.getLow(),yesterday.getFx(),yesterday.getFl(),yesterday.getType());
+                if(LitePal.where("date = ? and city = ?",yesterday.getDate(),"杭州市").find(Weather.class).size() == 0){
+                    weather.save();
+                }
+            }
+        });
+
         sendHttpRequest(" http://wthrcdn.etouch.cn/weather_mini?city=温州", new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -64,17 +87,17 @@ public class WeatherService extends Service {
 
                 WeatherData weatherData=gson.fromJson(str,new TypeToken<WeatherData>(){}.getType());
                 Yesterday yesterday=weatherData.getData().getYesterday();
-                Weather weather=new Weather("温州",yesterday.getDate(),yesterday.getHigh(),yesterday.getLow(),yesterday.getFx(),yesterday.getFl(),yesterday.getType());
-                weather.save();
-                Weather weather1= LitePal.find(Weather.class,1);
-                Log.d(TAG, "onResponse: "+weather1.getCity());
+                Weather weather=new Weather("温州市",yesterday.getDate(),yesterday.getHigh(),yesterday.getLow(),yesterday.getFx(),yesterday.getFl(),yesterday.getType());
+                if(LitePal.where("date = ? and city = ?",yesterday.getDate(),"温州市").find(Weather.class).size() == 0){
+                    weather.save();
+                }
             }
         });
 
 
         //定时启动服务
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        long triggerTime= SystemClock.elapsedRealtime()+10000;
+        long triggerTime= SystemClock.elapsedRealtime()+14400000;
         Intent intent1 = new Intent(this, WeatherReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this,0,intent1,0);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerTime,pendingIntent);
